@@ -21,23 +21,11 @@ export default function MonthChart({ numMonths = 1, events, setCurrentItem }) {
     return classString
   }
 
-  const dummy = [
-    {
-      title: "foobar",
-      day: 15,
-      span: 10,
-    },
-    {
-      title: "test item",
-      day: 5,
-      span: 10,
-    },
-  ]
   return (
     <div className="w-full h-full">
       <div id="headers" className="grid grid-cols-7">
         {days.map((day, i) => (
-          <div className="rounded-md bg-gray-500 p-0.5 m-1 px-2" key={day}>
+          <div className="rounded-md bg-cell-light p-0.5 m-1 px-2" key={day}>
             {day}
           </div>
         ))}
@@ -52,7 +40,7 @@ export default function MonthChart({ numMonths = 1, events, setCurrentItem }) {
               return (
                 <div
                   key={i}
-                  className={`${!weekend ? "bg-gray-500" : "bg-gray-700"} rounded-sm m-0.5 p-1`}
+                  className={`${weekend ? "bg-cell-dark" : "bg-cell-light"} rounded-sm m-0.5 p-1`}
                 >
                   {i + 1 < 10 ? `0${i + 1}` : i + 1}
                 </div>
@@ -61,12 +49,12 @@ export default function MonthChart({ numMonths = 1, events, setCurrentItem }) {
         </div>
         {/* items */}
         <div className="w-full grid h-full grid-cols-7 grid-rows-30 absolute top-0">
-          {dummy.map((item) => (
+          {events.map((item) => (
             <div
               key={item.title}
               style={gridClass(item)}
               className={`bg-red-300 rounded-md p-0.5.5.5.5.5 px-2 m-1`}
-              onClick={() => setCurrentItem(dummy)}
+              onClick={() => setCurrentItem(item)}
             >
               {item.title}
             </div>
