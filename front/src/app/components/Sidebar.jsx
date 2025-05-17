@@ -1,5 +1,9 @@
 import { useState, useEffect } from "react"
-import { createCalendarItem, deleteCalendarItem } from "@/lib/api"
+import {
+  createCalendarItem,
+  updateCalendarItem,
+  deleteCalendarItem,
+} from "@/lib/api"
 
 export default function Sidebar({
   item,
@@ -16,21 +20,13 @@ export default function Sidebar({
 
   useEffect(() => {
     if (item) {
-      console.log("Sidebar received item:", item)
-
       const start = item.startDate ? new Date(item.startDate) : null
       const end = item.endDate ? new Date(item.endDate) : null
 
       setFormData({
         title: item.title || "",
-        start_date:
-          start instanceof Date && !isNaN(start.getTime())
-            ? start.toISOString().split("T")[0]
-            : "",
-        end_date:
-          end instanceof Date && !isNaN(end.getTime())
-            ? end.toISOString().split("T")[0]
-            : "",
+        start_date: item.startDate?.slice(0, 10) || "",
+        end_date: item.endDate?.slice(0, 10) || "",
       })
     } else {
       setFormData({
@@ -56,20 +52,27 @@ export default function Sidebar({
     const end = new Date(end_date)
     if (isNaN(start.getTime()) || isNaN(end.getTime())) return
 
-    // span in days, minimum 1
     const span = Math.max(1, Math.ceil((end - start) / (1000 * 60 * 60 * 24)))
 
     const payload = {
       title,
       tag: "default",
-      start_date: start.toISOString(),
-      end_date: end.toISOString(),
+      start_date,
+      end_date,
     }
 
     try {
-      const newItem = await createCalendarItem(payload)
+      let savedItem
+      if (item?.id) {
+        // UPDATE logic
+        savedItem = await updateCalendarItem(item.id, payload)
+      } else {
+        // CREATE logic
+        savedItem = await createCalendarItem(payload)
+      }
+
       onSave({
-        ...newItem,
+        ...savedItem,
         day: start.getDate(),
         span,
       })

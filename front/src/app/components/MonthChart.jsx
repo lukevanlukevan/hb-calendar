@@ -56,26 +56,33 @@ export default function MonthChart({ numMonths = 1, events, setCurrentItem }) {
               )
             })()
 
+            const month = date.toLocaleString("default", { month: "long" })
+
             return (
               <div
                 key={i}
                 className={`${weekend ? "bg-cell-dark" : "bg-cell-light"} 
                   ${inMonth ? "" : "opacity-30"} 
-                  rounded-sm m-0.5 p-1 flex justify-start items-left hover:border`}
+                  rounded-sm m-0.5 p-1 flex justify-start items-left hover:shadow`}
               >
                 <div
                   className={`w-6 h-6 flex items-left justify-start text-sm ${
                     isToday ? "border-2 border-red-500 rounded-full" : ""
                   }`}
                 >
-                  {date.getDate().toString()}
+                  {date.getDate().toString() == "1"
+                    ? date.getDate().toString() + " " + month
+                    : date.getDate().toString()}
                 </div>
               </div>
             )
           })}
         </div>
-        <div className="w-full grid h-full grid-cols-7 grid-rows-30 absolute top-0 pointer-events-none">
+        <div
+          className={`w-full grid h-full grid-cols-7 absolute top-0 pointer-events-none grid-rows-30`}
+        >
           {events.map((item) => {
+            console.log(item)
             return (
               <CalendarItem
                 key={item.id}

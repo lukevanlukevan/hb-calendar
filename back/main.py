@@ -1,11 +1,11 @@
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI, HTTPException, Depends
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel, Field
 from typing import List
 from datetime import datetime
 from sqlalchemy import create_engine, Column, Integer, String, DateTime
 from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy.orm import sessionmaker
+from sqlalchemy.orm import sessionmaker, Session
 
 # Initialize FastAPI app
 app = FastAPI()
@@ -68,6 +68,22 @@ def create_item(item: CalendarItemCreate):
     db = next(get_db())
     db_item = CalendarItem(**item.dict())
     db.add(db_item)
+    db.commit()
+    db.refresh(db_item)
+    return db_item
+
+
+@app.put("/calendar/{item_id}", response_model=CalendarItemResponse)
+def update_item(item_id: int, item: CalendarItemCreate, db: Session = Depends(get_db)):
+    db_item = db.query(CalendarItem).filter(CalendarItem.id == item_id).first()
+    if not db_item:
+        raise HTTPException(status_code=404, detail="Item not found")
+
+    db_item.title = item.title
+    db_item.tag = item.tag
+    db_item.start_date = item.start_date
+    db_item.end_date = item.end_date
+
     db.commit()
     db.refresh(db_item)
     return db_item
