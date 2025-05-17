@@ -1,4 +1,6 @@
 import { useState, useEffect } from "react"
+import { createCalendarItem, deleteCalendarItem } from "@/lib/api"
+
 export default function Sidebar({
   item,
   sidebarShowing,
@@ -6,17 +8,36 @@ export default function Sidebar({
   onSave,
   onDelete,
 }) {
-  const [formData, setFormData] = useState({ title: "", day: "", span: "" })
+  const [formData, setFormData] = useState({
+    title: "",
+    start_date: "",
+    end_date: "",
+  })
 
   useEffect(() => {
     if (item) {
+      console.log("Sidebar received item:", item)
+
+      const start = item.startDate ? new Date(item.startDate) : null
+      const end = item.endDate ? new Date(item.endDate) : null
+
       setFormData({
         title: item.title || "",
-        day: item.day || "",
-        span: item.span || "",
+        start_date:
+          start instanceof Date && !isNaN(start.getTime())
+            ? start.toISOString().split("T")[0]
+            : "",
+        end_date:
+          end instanceof Date && !isNaN(end.getTime())
+            ? end.toISOString().split("T")[0]
+            : "",
       })
     } else {
-      setFormData({ title: "", day: "", span: "" })
+      setFormData({
+        title: "",
+        start_date: "",
+        end_date: "",
+      })
     }
   }, [item])
 
@@ -25,24 +46,47 @@ export default function Sidebar({
     setFormData((prev) => ({ ...prev, [name]: value }))
   }
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault()
-    if (!formData.title || !formData.day || !formData.span) return
+    const { title, start_date, end_date } = formData
 
-    const newEvent = {
-      ...formData,
-      day: parseInt(formData.day, 10),
-      span: parseInt(formData.span, 10),
+    if (!title || !start_date || !end_date) return
+
+    const start = new Date(start_date)
+    const end = new Date(end_date)
+    if (isNaN(start.getTime()) || isNaN(end.getTime())) return
+
+    // span in days, minimum 1
+    const span = Math.max(1, Math.ceil((end - start) / (1000 * 60 * 60 * 24)))
+
+    const payload = {
+      title,
+      tag: "default",
+      start_date: start.toISOString(),
+      end_date: end.toISOString(),
     }
 
-    onSave(newEvent)
-    setSidebarShowing(false)
+    try {
+      const newItem = await createCalendarItem(payload)
+      onSave({
+        ...newItem,
+        day: start.getDate(),
+        span,
+      })
+      setSidebarShowing(false)
+    } catch (err) {
+      console.error("Error saving item:", err)
+    }
   }
 
-  const handleDelete = () => {
-    if (item && onDelete) {
+  const handleDelete = async () => {
+    if (!item) return
+    try {
+      await deleteCalendarItem(item.id)
       onDelete(item.id)
       setSidebarShowing(false)
+    } catch (err) {
+      console.error("Error deleting item:", err)
     }
   }
 
@@ -50,7 +94,7 @@ export default function Sidebar({
     <div className={`${sidebarShowing && "min-w-1/4"} max-w-1/2 flex flex-row`}>
       <div
         id="buttonholder"
-        className="p-2 border border-r-0 h-fit rounded-l-md bg-cell-dark"
+        className="p-2 h-fit rounded-l-md bg-cell-dark cursor-pointer"
         onClick={() => setSidebarShowing(!sidebarShowing)}
       >
         <svg
@@ -69,7 +113,7 @@ export default function Sidebar({
       </div>
 
       <div
-        className={`bg-cell-dark w-full h-full p-4 text-white ${
+        className={`bg-cell-dark w-full h-full p-4 ${
           !sidebarShowing && "hidden"
         }`}
       >
@@ -86,28 +130,31 @@ export default function Sidebar({
               name="title"
               value={formData.title}
               onChange={handleChange}
+              required
             />
           </label>
 
           <label>
-            Day:
+            Start Date:
             <input
               className="w-full text-black px-2 py-1 rounded"
-              type="number"
-              name="day"
-              value={formData.day}
+              type="date"
+              name="start_date"
+              value={formData.start_date}
               onChange={handleChange}
+              required
             />
           </label>
 
           <label>
-            Span:
+            End Date:
             <input
               className="w-full text-black px-2 py-1 rounded"
-              type="number"
-              name="span"
-              value={formData.span}
+              type="date"
+              name="end_date"
+              value={formData.end_date}
               onChange={handleChange}
+              required
             />
           </label>
 
