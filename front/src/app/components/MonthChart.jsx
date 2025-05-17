@@ -1,7 +1,8 @@
+import { generateMonthDays } from "@/utils/calendarUtils"
 import CalendarItem from "@/app/components/CalendarItem"
 
 export default function MonthChart({ numMonths = 1, events, setCurrentItem }) {
-  const days = [
+  const daysOfWeek = [
     "Sunday",
     "Monday",
     "Tuesday",
@@ -11,45 +12,75 @@ export default function MonthChart({ numMonths = 1, events, setCurrentItem }) {
     "Saturday",
   ]
 
-  const today = () => {
-    const date = new Date()
-    return date
+  const today = new Date()
+  const baseMonth = today.getMonth()
+  const baseYear = today.getFullYear()
+
+  // Flatten all days for numMonths
+  const allDays = []
+  for (let i = 0; i < numMonths; i++) {
+    const month = (baseMonth + i) % 12
+    const year = baseYear + Math.floor((baseMonth + i) / 12)
+    allDays.push(...generateMonthDays(year, month))
+  }
+
+  const rowCount = () => {
+    const weeks = Math.ceil(allDays.length / 7) + 3
+
+    return weeks
   }
 
   return (
     <div className="w-full h-full">
       <div id="headers" className="grid grid-cols-7">
-        {days.map((day, _i) => (
+        {daysOfWeek.map((day) => (
           <div className="rounded-md bg-cell-light p-0.5 m-1 px-2" key={day}>
             {day}
           </div>
         ))}
       </div>
       <div className="h-11/12 relative">
-        {/* add numbers */}
-        <div className="w-full grid h-full grid-cols-7 grid-rows-8">
-          {...Array(7 * 4 * numMonths)
-            .fill()
-            .map((_day, i) => {
-              const weekend = i % 7 == 0 || i % 7 == 6
-              const zeroday = (i % 31) + 1
+        <div
+          className={`w-full grid h-full grid-cols-7 grid-rows-[${rowCount()}]`}
+        >
+          {allDays.map((dayObj, i) => {
+            const { date, inMonth } = dayObj
+            const weekend = date.getDay() === 0 || date.getDay() === 6
+
+            const isToday = (() => {
+              const today = new Date()
               return (
-                <div
-                  key={i}
-                  className={`${weekend ? "bg-cell-dark" : "bg-cell-light"} rounded-sm m-0.5 p-1`}
-                >
-                  {zeroday < 10 ? `0${zeroday}` : zeroday}
-                </div>
+                date.getDate() === today.getDate() &&
+                date.getMonth() === today.getMonth() &&
+                date.getFullYear() === today.getFullYear()
               )
-            })}
+            })()
+
+            return (
+              <div
+                key={i}
+                className={`${weekend ? "bg-cell-dark" : "bg-cell-light"} 
+                  ${inMonth ? "" : "opacity-30"} 
+                  rounded-sm m-0.5 p-1 flex justify-start items-left hover:border`}
+              >
+                <div
+                  className={`w-6 h-6 flex items-left justify-start text-sm ${
+                    isToday ? "border-2 border-red-500 rounded-full" : ""
+                  }`}
+                >
+                  {date.getDate().toString()}
+                </div>
+              </div>
+            )
+          })}
         </div>
-        {/* items */}
-        <div className="w-full grid h-full grid-cols-7 grid-rows-30 absolute top-0">
+        <div className="w-full grid h-full grid-cols-7 grid-rows-30 absolute top-0 pointer-events-none">
           {events.map((item) => {
             return (
               <CalendarItem
-                key={item.title}
+                key={item.id}
                 item={item}
+                calendarDays={allDays} // ← pass this
                 setCurrentItem={setCurrentItem}
               />
             )

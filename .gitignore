@@ -4,6 +4,7 @@
 */__pycache__
 */node_modules
 /.pnp
+**/venv/
 .pnp.*
 .yarn/*
 !.yarn/patches

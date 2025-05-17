@@ -20,8 +20,8 @@ export default function Home() {
             id: item.id,
             title: item.title,
             tag: item.tag,
-            day: start.getDate(),
-            span: Math.max(1, (end - start) / (1000 * 60 * 60 * 24)), // convert ms to days
+            // day: start.getDate(),
+            // span: Math.max(1, (end - start) / (1000 * 60 * 60 * 24)), // convert ms to days
             startDate: item.start_date,
             endDate: item.end_date,
           }
