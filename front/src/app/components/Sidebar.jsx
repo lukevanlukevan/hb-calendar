@@ -94,10 +94,10 @@ export default function Sidebar({
   }
 
   return (
-    <div className={`${sidebarShowing && "min-w-1/4"} max-w-1/2 flex flex-row`}>
+    <div className={`${sidebarShowing && "min-w-1/4"} flex max-w-1/2 flex-row`}>
       <div
         id="buttonholder"
-        className="p-2 h-fit rounded-l-md bg-cell-dark cursor-pointer"
+        className="h-fit cursor-pointer rounded-l-md bg-cell-dark p-2"
         onClick={() => setSidebarShowing(!sidebarShowing)}
       >
         <svg
@@ -116,9 +116,9 @@ export default function Sidebar({
       </div>
 
       <div
-        className={`bg-cell-dark w-full h-full p-4 ${
-          !sidebarShowing && "hidden"
-        }`}
+        className={`${!sidebarShowing && "hidden"}
+          h-full w-full bg-cell-dark
+        p-4`}
       >
         <form onSubmit={handleSubmit} className="flex flex-col gap-4">
           <h2 className="text-lg font-bold">
@@ -128,7 +128,7 @@ export default function Sidebar({
           <label>
             Title:
             <input
-              className="w-full text-black px-2 py-1 rounded"
+              className="w-full rounded px-2 py-1 text-black"
               type="text"
               name="title"
               value={formData.title}
@@ -140,7 +140,7 @@ export default function Sidebar({
           <label>
             Start Date:
             <input
-              className="w-full text-black px-2 py-1 rounded"
+              className="w-full rounded px-2 py-1 text-black"
               type="date"
               name="start_date"
               value={formData.start_date}
@@ -152,7 +152,7 @@ export default function Sidebar({
           <label>
             End Date:
             <input
-              className="w-full text-black px-2 py-1 rounded"
+              className="w-full rounded px-2 py-1 text-black"
               type="date"
               name="end_date"
               value={formData.end_date}
@@ -164,7 +164,7 @@ export default function Sidebar({
           <div className="flex gap-2">
             <button
               type="submit"
-              className="bg-blue-600 hover:bg-blue-700 px-4 py-2 rounded"
+              className="rounded bg-blue-600 px-4 py-2 hover:bg-blue-700"
             >
               {item ? "Update" : "Create"}
             </button>
@@ -172,7 +172,7 @@ export default function Sidebar({
             {item && (
               <button
                 type="button"
-                className="bg-red-600 hover:bg-red-700 px-4 py-2 rounded"
+                className="rounded bg-red-600 px-4 py-2 hover:bg-red-700"
                 onClick={handleDelete}
               >
                 Delete

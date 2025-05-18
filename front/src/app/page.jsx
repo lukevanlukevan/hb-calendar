@@ -8,6 +8,7 @@ export default function Home() {
   const [currentItem, setCurrentItem] = useState(null)
   const [sidebarShowing, setSidebarShowing] = useState(false)
   const [events, setEvents] = useState([])
+  const [monthCount, setMontCount] = useState(1)
 
   useEffect(() => {
     const loadEvents = async () => {
@@ -58,32 +59,50 @@ export default function Home() {
   }
 
   return (
-    <div className="flex flex-row h-full min-h-screen">
-      <div className="body grow">
-        <MonthChart
-          events={events}
-          numMonths={2}
-          setCurrentItem={handleEventClick}
-        />
+    <div className="flex h-full min-h-screen flex-col">
+      <MonthChart
+        events={events}
+        numMonths={monthCount}
+        setCurrentItem={handleEventClick}
+      />
+      <div id="Monthpicker" className="flex gap-2">
         <div
-          id="addbtn"
-          className="absolute bottom-0 right-0 w-9 h-9 bg-cell-light rounded-full m-5 flex items-center justify-center cursor-pointer"
-          onClick={() => {
-            setCurrentItem(null)
-            setSidebarShowing(true)
-          }}
+          onClick={() => setMontCount(1)}
+          className="rounded-full bg-cell-light px-2"
         >
-          +
+          1
+        </div>
+        <div
+          onClick={() => setMontCount(2)}
+          className="rounded-full bg-cell-light px-2"
+        >
+          2
+        </div>
+        <div
+          onClick={() => setMontCount(3)}
+          className="rounded-full bg-cell-light px-2"
+        >
+          3
         </div>
       </div>
+      <div
+        id="addbtn"
+        className="absolute right-0 bottom-0 m-5 flex h-9 w-9 cursor-pointer items-center justify-center rounded-full bg-cell-light"
+        onClick={() => {
+          setCurrentItem(null)
+          setSidebarShowing(true)
+        }}
+      >
+        +
+      </div>
 
-      <Sidebar
-        item={currentItem}
-        sidebarShowing={sidebarShowing}
-        setSidebarShowing={setSidebarShowing}
-        onSave={handleSaveEvent}
-        onDelete={handleDeleteEvent}
-      />
+      {/* <Sidebar */}
+      {/*   item={currentItem} */}
+      {/*   sidebarShowing={sidebarShowing} */}
+      {/*   setSidebarShowing={setSidebarShowing} */}
+      {/*   onSave={handleSaveEvent} */}
+      {/*   onDelete={handleDeleteEvent} */}
+      {/* /> */}
     </div>
   )
 }

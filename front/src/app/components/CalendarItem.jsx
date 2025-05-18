@@ -1,4 +1,4 @@
-function CalendarItem({ item, calendarDays, setCurrentItem }) {
+function CalendarItem({ item, calendarDays, setCurrentItem, rows }) {
   const start = new Date(item.startDate)
   const end = new Date(item.endDate)
 
@@ -15,7 +15,7 @@ function CalendarItem({ item, calendarDays, setCurrentItem }) {
     return null
   }
 
-  const rowsPerDay = 3
+  const rowsPerDay = rows
   const startRow = Math.floor(startIndex / 7)
   const endRow = Math.floor(endIndex / 7)
   const wrapped = endRow - startRow
@@ -42,7 +42,7 @@ function CalendarItem({ item, calendarDays, setCurrentItem }) {
           gridColumnEnd: colEnd,
           gridRowStart: row + 1,
         }}
-        className="pointer-events-auto bg-red-300 rounded-md p-0.5 px-2 m-1 hover:shadow-md hover:border-red-300 cursor-pointer"
+        className="pointer-events-auto m-1 max-h-full cursor-pointer rounded-md bg-red-300 p-0.5 px-2 text-sm hover:border-red-300 hover:shadow-md"
         onClick={() => setCurrentItem(item)}
       >
         {item.title}

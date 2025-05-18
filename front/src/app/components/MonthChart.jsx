@@ -1,7 +1,8 @@
 import { generateMonthDays } from "@/utils/calendarUtils"
 import CalendarItem from "@/app/components/CalendarItem"
+import { useEffect, useState } from "react"
 
-export default function MonthChart({ numMonths = 1, events, setCurrentItem }) {
+export default function MonthChart({ numMonths, events, setCurrentItem }) {
   const daysOfWeek = [
     "Sunday",
     "Monday",
@@ -16,32 +17,33 @@ export default function MonthChart({ numMonths = 1, events, setCurrentItem }) {
   const baseMonth = today.getMonth()
   const baseYear = today.getFullYear()
 
-  // Flatten all days for numMonths
-  const allDays = []
-  for (let i = 0; i < numMonths; i++) {
-    const month = (baseMonth + i) % 12
-    const year = baseYear + Math.floor((baseMonth + i) / 12)
-    allDays.push(...generateMonthDays(year, month))
-  }
+  const allDays = generateMonthDays(baseYear, baseMonth, numMonths)
 
   const rowCount = () => {
-    const weeks = Math.ceil(allDays.length / 7) + 3
+    const weeks = allDays.length / 7
 
     return weeks
   }
+  const rows = 4
+  const gridsize = rowCount() * rows
+
+  const gridstring = "grid-rows-" + gridsize
+
+  console.log(gridsize)
+  console.log(gridstring)
 
   return (
-    <div className="w-full h-full">
+    <div className="flex h-full w-full grow flex-col">
       <div id="headers" className="grid grid-cols-7">
         {daysOfWeek.map((day) => (
-          <div className="rounded-md bg-cell-light p-0.5 m-1 px-2" key={day}>
+          <div className="m-1 rounded-md bg-cell-light p-0.5 px-2" key={day}>
             {day}
           </div>
         ))}
       </div>
-      <div className="h-11/12 relative">
+      <div className="relative h-full grow">
         <div
-          className={`w-full grid h-full grid-cols-7 grid-rows-[${rowCount()}]`}
+          className={`grid-rows-[${rowCount()}] grid h-auto w-full grid-cols-7`}
         >
           {allDays.map((dayObj, i) => {
             const { date, inMonth } = dayObj
@@ -63,12 +65,12 @@ export default function MonthChart({ numMonths = 1, events, setCurrentItem }) {
                 key={i}
                 className={`${weekend ? "bg-cell-dark" : "bg-cell-light"} 
                   ${inMonth ? "" : "opacity-30"} 
-                  rounded-sm m-0.5 p-1 flex justify-start items-left hover:shadow`}
+                  items-left m-0.5 flex grow justify-start rounded-sm p-1 opacity-50 transition-opacity hover:opacity-100`}
               >
                 <div
-                  className={`w-6 h-6 flex items-left justify-start text-sm ${
-                    isToday ? "border-2 border-red-500 rounded-full" : ""
-                  }`}
+                  className={`items-left ${
+                    isToday ? "border-2 rounded-full" : ""
+                  } flex h-6 w-6 justify-start border-red-500 text-sm opacity-100`}
                 >
                   {date.getDate().toString() == "1"
                     ? date.getDate().toString() + " " + month
@@ -79,7 +81,8 @@ export default function MonthChart({ numMonths = 1, events, setCurrentItem }) {
           })}
         </div>
         <div
-          className={`w-full grid h-full grid-cols-7 absolute top-0 pointer-events-none grid-rows-30`}
+          // style={subgrid}
+          className={`${gridstring} pointer-events-none absolute top-0 grid h-full w-full grid-cols-7`}
         >
           {events.map((item) => {
             console.log(item)
@@ -87,6 +90,7 @@ export default function MonthChart({ numMonths = 1, events, setCurrentItem }) {
               <CalendarItem
                 key={item.id}
                 item={item}
+                rows={rows}
                 calendarDays={allDays} // ← pass this
                 setCurrentItem={setCurrentItem}
               />
